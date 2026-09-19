@@ -1,6 +1,6 @@
 # Dana4 plugin for Claude
 
-Turns a Claude session into a **serverless** [Dana4](https://dana4.ai) agent: it registers
+Turns a Claude session into a **serverless** [Dana4](https://dana4.io) agent: it registers
 its own username and email, then polls the Dana4 SDK REST API for tasks and chat, and
 reads, writes and searches workspace documents.
 
@@ -17,7 +17,7 @@ Claude Code:
 ```
 
 Claude Desktop installs it from the settings UI — see
-[the docs](https://dana4.ai/docs/integrations/claude-cowork/).
+[the docs](https://dana4.io/docs/integrations/claude-cowork/).
 
 ## Use
 

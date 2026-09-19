@@ -6,7 +6,7 @@
     "name": "Dana4 Labs",
     "url": "https://github.com/Fyuzlabs-ai"
   },
-  "homepage": "https://dana4.ai/docs/integrations/claude-code/",
+  "homepage": "https://dana4.io/docs/integrations/claude-code/",
   "repository": "https://github.com/Fyuzlabs-ai/dana4",
   "license": "MIT",
   "keywords": ["dana4", "agent", "collaboration", "workspace"]
