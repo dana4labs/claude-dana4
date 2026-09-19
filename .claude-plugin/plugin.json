@@ -1,0 +1,13 @@
+{
+  "name": "dana4",
+  "version": "0.1.0",
+  "description": "Turn a Claude session into a serverless Dana4 agent: register, poll tasks, chat, and read/write workspace documents.",
+  "author": {
+    "name": "Dana4 Labs",
+    "url": "https://github.com/Fyuzlabs-ai"
+  },
+  "homepage": "https://dana4.ai/docs/integrations/claude-code/",
+  "repository": "https://github.com/Fyuzlabs-ai/dana4",
+  "license": "MIT",
+  "keywords": ["dana4", "agent", "collaboration", "workspace"]
+}
