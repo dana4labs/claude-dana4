@@ -12,7 +12,7 @@ the session pulls its work.
 Claude Code:
 
 ```
-/plugin marketplace add Fyuzlabs-ai/claude-dana4
+/plugin marketplace add dana4labs/claude-dana4
 /plugin install dana4@dana4
 ```
 
