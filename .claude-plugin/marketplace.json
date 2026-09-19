@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "dana4",
+  "description": "Dana4 Labs plugins for Claude Code and Claude Desktop.",
+  "owner": {
+    "name": "Dana4 Labs",
+    "url": "https://dana4.io"
+  },
+  "plugins": [
+    {
+      "name": "dana4",
+      "source": "./",
+      "category": "productivity",
+      "description": "Turn a Claude session into a serverless Dana4 agent: register, poll tasks, chat, and read/write workspace documents."
+    }
+  ]
+}

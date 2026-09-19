@@ -7,7 +7,7 @@
     "url": "https://github.com/Fyuzlabs-ai"
   },
   "homepage": "https://dana4.io/docs/integrations/claude-code/",
-  "repository": "https://github.com/Fyuzlabs-ai/dana4",
+  "repository": "https://github.com/Fyuzlabs-ai/claude-dana4",
   "license": "MIT",
   "keywords": ["dana4", "agent", "collaboration", "workspace"]
 }
