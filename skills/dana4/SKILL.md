@@ -1,12 +1,12 @@
 ---
 name: dana4
-description: "Work inside a Dana4 workspace as a serverless agent — poll and report tasks, read and answer channel chat, and read/write/search workspace documents over the Dana4 SDK REST API. Use when the user mentions Dana4 — a Dana4 workspace, channel, task or document — or asks to register a Dana4 agent, check or claim Dana4 tasks, post to a Dana4 channel, or read/edit/search a Dana4 document."
+description: "Work inside a Dana4 workspace as a serverless agent — poll and report tasks, read and answer channel chat, and read/write/search workspace documents over the Dana4 SDK REST API. Use when the user mentions Dana4 — a Dana4 workspace, channel, task or document — or asks to connect (enroll) a Dana4 agent, check or claim Dana4 tasks, post to a Dana4 channel, or read/edit/search a Dana4 document."
 ---
 
 # Dana4
 
 Drive the Dana4 collaborative platform (humans + agents in shared workspaces) from this
-session. The session is registered as a **serverless** agent: Dana4 never calls in, so
+session. The session is a **serverless** Dana4 agent: Dana4 never calls in, so
 everything happens by pulling.
 
 All calls go through the bundled stdlib-only CLI — no `pip install`, no dependencies:
@@ -21,31 +21,25 @@ endpoint you have not used yet.
 
 ## Credentials
 
-Resolved per field, first hit wins: explicit flags → `DANA4_HOST` / `DANA4_USERNAME` /
-`DANA4_PASSWORD` env vars → `~/.config/dana4/credentials.json` (written by `register`,
-mode 0600). Run `dana4_cli.py creds` to see what is configured; it never prints the
-password. If nothing is configured, run `/dana4:register` — do not guess a host.
+Resolved per field, first hit wins: explicit flags → `DANA4_HOST` / `DANA4_API_KEY`
+env vars → `~/.config/dana4/credentials.json` (written by `enroll`, mode 0600). Run
+`dana4_cli.py creds` to see what is configured; it never prints the API key. If nothing
+is configured, run `/dana4:enroll` — do not guess a host.
 
-## Registering (once)
+## Enrolling (once)
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" register \
-    --host https://app.dana4.example \
-    --username my_agent --password '<generated>' --email you@example.com \
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" enroll \
+    --host https://app.dana4.example --username my_agent \
     --bio "Claude Code session" --desc "Runs Dana4 tasks inside Claude"
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" agent-set \
     --schema-file "${CLAUDE_PLUGIN_ROOT}/skills/dana4/references/default-schema.json" \
     --bio "Claude Code session" --desc "Runs Dana4 tasks inside Claude"
 ```
 
-Omitting `--url` sends `url: null`, which is what makes the agent serverless.
-
-**Ask the user for the email. Never infer one** — not from git config, not from an
-OpenAPI `info.contact` block, not from anything else. The email is write-only and can
-only be set at register time; a re-register does **not** change it, and fixing a wrong
-one means deleting the agent record server-side. It is also the identity a human uses to
-invite the agent into a workspace, so a wrong address means the agent can never be
-invited.
+`enroll` prints a link. **The user has to open it**, sign in to Dana4, pick the workspaces
+and approve; the command waits, then stores the API key. The user becomes the agent's
+owner and can rotate or revoke its key from the Agents page.
 
 ## Working a task
 
@@ -106,16 +100,15 @@ system/automated noise — filter them out.
 These are field-verified against a live deployment; the OpenAPI spec is wrong about
 several of them.
 
-- **Workspace membership is required and cannot be self-served.** There is no API to join
-  a workspace. A human invites the agent by **email** from the Dana4 web app. Until then
-  every workspace-scoped call returns `401`. A `401` on a workspace you expected to have
-  is almost always a missing invite, not bad credentials — check `creds` and then ask the
-  user to invite the email.
-- **Serverless agents always show `Offline` in the UI.** The orchestrator marks any agent
-  with no `url` offline because there is no health endpoint to ping. This is by design and
-  does not stop task polling. Do not "fix" it.
+- **Workspace membership is decided by the agent's owner.** There is no API to join a
+  workspace. The person who approved the agent picks its workspaces at approval, and can add
+  it to more later from a workspace's members panel. A `401` on one workspace means the agent
+  is not in it; a `401` on every call means the API key was rotated or the agent deleted —
+  check `creds` and ask the owner.
+- **Online means "polled within the last minute".** The agent shows `Offline` in the UI
+  whenever this session is not polling. That is expected between `/dana4:poll` runs.
 - **Nothing is pushed.** Tasks are assigned and then sit until `tasks-take` claims them;
-  chat notifications are skipped entirely for serverless agents. Polling is the only path.
+  chat waits for `msg-next`. Polling is the only path.
 - **Capability input schemas must declare `workspace_id` and `task_id` as required
   strings.** The orchestrator validates the assembled payload against the schema and turns
   a missing required property into a workspace blocker instead of dispatching the task.

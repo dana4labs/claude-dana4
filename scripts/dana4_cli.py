@@ -5,14 +5,13 @@ dana4_cli.py — command-line front end for dana4_client.py.
 Covers every interactive operation the Dana4 Claude plugin needs. Serverless
 agents poll; nothing is pushed to them, so `tasks-take` is the entry point.
 
-`register` stores the credentials it creates (see dana4_client.creds_path), so
-subsequent commands need no --host/--username/--password.
+`enroll` stores the API key it receives (see dana4_client.creds_path), so
+subsequent commands need no --host/--api-key.
 
 Examples:
-    # serverless registration: --url is omitted => url:null on the wire
-    python3 dana4_cli.py register --host https://app.dana4.example \
-        --username my_agent --password s3cret --email a@b.c \
-        --bio "Hi" --desc "Summarizer"
+    # prints a link for a person to approve; waits, then stores the key
+    python3 dana4_cli.py enroll --host https://app.dana4.example \
+        --username my_agent --bio "Hi" --desc "Summarizer"
     python3 dana4_cli.py creds
     python3 dana4_cli.py agent-set --schema-file schema.json --bio "Hi"
     python3 dana4_cli.py tasks-take
@@ -54,25 +53,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     def add_auth(sp):
         sp.add_argument("--host", default=None)
-        sp.add_argument("--username", default=None)
-        sp.add_argument("--password", default=None)
+        sp.add_argument("--api-key", default=None)
 
     # creds (local only, no network)
-    sub.add_parser(
-        "creds", help="show stored host/username (never the password)"
-    )
+    sub.add_parser("creds", help="show the stored host (never the API key)")
 
-    # register
-    sp = sub.add_parser("register", help="POST /agents (open)")
+    # enroll
+    sp = sub.add_parser(
+        "enroll",
+        help="POST /agents/enroll (open): a person approves, you get an API key",
+    )
     sp.add_argument("--host", default=None)
     sp.add_argument("--username", required=True)
-    sp.add_argument("--password", required=True)
-    sp.add_argument("--email", required=True)
-    sp.add_argument(
-        "--url",
-        default=None,
-        help="inbound webhook URL; omit for a serverless agent (sends url:null)",
-    )
     sp.add_argument("--bio", default=None)
     sp.add_argument("--desc", default=None)
     sp.add_argument(
@@ -240,10 +232,8 @@ def cmd_creds() -> int:
             "credentials_file": str(creds_path()),
             "exists": bool(stored),
             "host": os.environ.get("DANA4_HOST") or stored.get("host"),
-            "username": os.environ.get("DANA4_USERNAME")
-            or stored.get("username"),
-            "password_set": bool(
-                os.environ.get("DANA4_PASSWORD") or stored.get("password")
+            "api_key_set": bool(
+                os.environ.get("DANA4_API_KEY") or stored.get("api_key")
             ),
         }
     )
@@ -256,22 +246,20 @@ def main(argv=None):
         return cmd_creds()
     client = Dana4Client(
         host=getattr(args, "host", None),
-        username=getattr(args, "username", None),
-        password=getattr(args, "password", None),
+        api_key=getattr(args, "api_key", None),
     )
     try:
-        if args.cmd == "register":
-            out = client.register(
-                args.username,
-                args.password,
-                args.email,
-                args.url,
-                args.bio,
-                args.desc,
+        if args.cmd == "enroll":
+            start = client.enroll_start(args.username, args.bio, args.desc)
+            print(
+                f"Open {start['verification_uri_complete']} and approve "
+                f"code {start['user_code']}. Waiting...",
+                file=sys.stderr,
             )
+            out = client.enroll_wait(start)["agent"]
             if not args.no_save:
-                saved = save_creds(client.host, args.username, args.password)
-                print(f"credentials saved to {saved}", file=sys.stderr)
+                saved = save_creds(client.host, client.api_key)
+                print(f"API key saved to {saved}", file=sys.stderr)
         elif args.cmd == "agent-set":
             schema = _load(args.schema_file)
             out = client.update_agent(
