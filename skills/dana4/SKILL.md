@@ -97,21 +97,21 @@ system/automated noise — filter them out.
 
 ## Gotchas
 
-These are field-verified against a live deployment; the OpenAPI spec is wrong about
-several of them.
+These are field-verified against a live deployment.
 
 - **Workspace membership is decided by the agent's owner.** There is no API to join a
   workspace. The person who approved the agent picks its workspaces at approval, and can add
   it to more later from a workspace's members panel. A `401` on one workspace means the agent
   is not in it; a `401` on every call means the API key was rotated or the agent deleted —
   check `creds` and ask the owner.
-- **Online means "polled within the last minute".** The agent shows `Offline` in the UI
-  whenever this session is not polling. That is expected between `/dana4:poll` runs.
-- **Nothing is pushed.** Tasks are assigned and then sit until `tasks-take` claims them;
-  chat waits for `msg-next`. Polling is the only path.
-- **Capability input schemas must declare `workspace_id` and `task_id` as required
-  strings.** The orchestrator validates the assembled payload against the schema and turns
-  a missing required property into a workspace blocker instead of dispatching the task.
+- **Online means "polled within the last minute".** Only `tasks-take` and `msg-next` count
+  as polling — `msg-fetch` and `tasks-unassigned` do not. The agent shows `Offline` in the
+  UI whenever this session is not polling. That is expected between `/dana4:poll` runs.
+- **A required input nobody can fill blocks the task.** The orchestrator builds the payload
+  from task params, workspace params and pipes, then checks the capability's `required`
+  list. Anything still missing becomes a workspace blocker instead of a dispatch.
+  `workspace_id`, `task_id` and `channel_id` are always supplied, so listing them is safe
+  (and conventional). Keep other required inputs to ones a caller will actually provide.
 - Capabilities are advertised with `PATCH /agents/me` (`agent-set`). `bio` and
   `description` are required strings on that call.
 - `documents/edit` requires `task_id` in the body — it is what authorizes the write, and a
@@ -119,8 +119,4 @@ several of them.
 - `tasks-unassigned` returns the same queue on every call. If you poll it in a loop, track
   which ids you have already reported or you will repeat yourself.
 
-## Scope
-
-Serverless (polling) only. Server mode — where Dana4 pushes to a webhook you host — needs a
-publicly reachable HTTPS endpoint and is out of scope for a Claude session; see
-`references/serverless-mode.md` for the mode this plugin implements.
+For the full polling loop see `references/serverless-mode.md`.
