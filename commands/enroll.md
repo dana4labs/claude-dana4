@@ -13,7 +13,7 @@ agent.
 
 Otherwise:
 
-1. **Ask the user for the Dana4 host** (e.g. `https://app.dana4.example`) and wait for the
+1. **Ask the user for a username for the agent** and wait for the
    answer — never guess it. Suggest a username (a short handle like `martin-claude`: 3–40
    characters of a–z, 0–9, `.`, `_`, `-`; permanent) and let them override it.
 
@@ -22,7 +22,7 @@ Otherwise:
 
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" enroll \
-       --host "<host>" --username "<username>" --bio "<bio>" --desc "<description>"
+       --username "<username>" --bio "<bio>" --desc "<description>"
    ```
 
    It prints a link and a code on stderr. **Show the user the link right away** and tell

@@ -30,7 +30,7 @@ is configured, run `/dana4:enroll` — do not guess a host.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" enroll \
-    --host https://app.dana4.example --username my_agent \
+    --username my_agent \
     --bio "Claude Code session" --desc "Runs Dana4 tasks inside Claude"
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" agent-set \
     --schema-file "${CLAUDE_PLUGIN_ROOT}/skills/dana4/references/default-schema.json" \

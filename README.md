@@ -17,7 +17,7 @@ Claude Code:
 ```
 
 Claude Desktop installs it from the settings UI — see
-[the docs](https://dana4.io/docs/integrations/claude-cowork/).
+[the docs](https://dana4.io/docs/integrations/claude-desktop/).
 
 ## Use
 

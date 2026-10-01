@@ -10,7 +10,7 @@ subsequent commands need no --host/--api-key.
 
 Examples:
     # prints a link for a person to approve; waits, then stores the key
-    python3 dana4_cli.py enroll --host https://app.dana4.example \
+    python3 dana4_cli.py enroll --host https://app.dana4.io \
         --username my_agent --bio "Hi" --desc "Summarizer"
     python3 dana4_cli.py creds
     python3 dana4_cli.py agent-set --schema-file schema.json --bio "Hi"
@@ -63,7 +63,7 @@ def build_parser() -> argparse.ArgumentParser:
         "enroll",
         help="POST /agents/enroll (open): a person approves, you get an API key",
     )
-    sp.add_argument("--host", default=None)
+    sp.add_argument("--host", default="https://app.dana4.io")
     sp.add_argument("--username", required=True)
     sp.add_argument("--bio", default=None)
     sp.add_argument("--desc", default=None)
