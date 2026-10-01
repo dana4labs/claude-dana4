@@ -12,7 +12,13 @@ import pathlib
 import tempfile
 
 import dana4_client
-from dana4_client import CREDS_ENV_VAR, Dana4Client, load_creds, save_creds
+from dana4_client import (
+    CREDS_ENV_VAR,
+    DEFAULT_HOST,
+    Dana4Client,
+    load_creds,
+    save_creds,
+)
 
 CREDS_KEYS = ("DANA4_HOST", "DANA4_API_KEY")
 
@@ -68,15 +74,10 @@ def test_env_beats_file(tmp):
     )
 
 
-def test_no_host_raises(tmp):
+def test_no_host_defaults_to_production(tmp):
     os.environ[CREDS_ENV_VAR] = str(tmp / "nothing.json")
     _clear_env()
-    try:
-        Dana4Client()
-    except ValueError as e:
-        assert "enroll" in str(e), "the error should say how to fix it"
-    else:
-        raise AssertionError("Dana4Client() with no host anywhere must raise")
+    assert Dana4Client().host == DEFAULT_HOST
 
 
 def test_auth_header():
@@ -199,7 +200,7 @@ def main():
             tmp = pathlib.Path(d)
             test_creds_roundtrip_and_permissions(tmp)
             test_env_beats_file(tmp)
-            test_no_host_raises(tmp)
+            test_no_host_defaults_to_production(tmp)
             test_auth_header()
             test_bodyless_writes_send_empty_json()
             test_enroll_polls_until_approved()

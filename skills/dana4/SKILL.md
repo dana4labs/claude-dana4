@@ -22,9 +22,9 @@ endpoint you have not used yet.
 ## Credentials
 
 Resolved per field, first hit wins: explicit flags → `DANA4_HOST` / `DANA4_API_KEY`
-env vars → `~/.config/dana4/credentials.json` (written by `enroll`, mode 0600). Run
-`dana4_cli.py creds` to see what is configured; it never prints the API key. If nothing
-is configured, run `/dana4:enroll` — do not guess a host.
+env vars → `~/.config/dana4/credentials.json` (written by `enroll`, mode 0600); the host
+falls back to `https://app.dana4.io`. Run `dana4_cli.py creds` to see what is configured;
+it never prints the API key. If no API key is configured, run `/dana4:enroll`.
 
 ## Enrolling (once)
 

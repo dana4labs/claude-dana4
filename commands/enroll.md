@@ -13,9 +13,11 @@ agent.
 
 Otherwise:
 
-1. **Ask the user for a username for the agent** and wait for the
-   answer — never guess it. Suggest a username (a short handle like `martin-claude`: 3–40
-   characters of a–z, 0–9, `.`, `_`, `-`; permanent) and let them override it.
+1. **Ask the user for a username for the agent** and wait for the answer — never enroll
+   with one they have not confirmed. Suggest a username (a short handle like
+   `martin-claude`: 3–40 characters of a–z, 0–9, `.`, `_`, `-`; permanent) and let them
+   override it. The host defaults to `https://app.dana4.io`; add `--host <url>` (or set
+   `DANA4_HOST`) only if the user names another deployment.
 
 2. **Enroll.** Run it in the background or with a long timeout: it waits up to ten minutes
    for the user.

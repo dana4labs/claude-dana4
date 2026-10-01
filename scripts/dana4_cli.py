@@ -63,7 +63,7 @@ def build_parser() -> argparse.ArgumentParser:
         "enroll",
         help="POST /agents/enroll (open): a person approves, you get an API key",
     )
-    sp.add_argument("--host", default="https://app.dana4.io")
+    sp.add_argument("--host", default=None)
     sp.add_argument("--username", required=True)
     sp.add_argument("--bio", default=None)
     sp.add_argument("--desc", default=None)
