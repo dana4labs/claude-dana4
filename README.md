@@ -24,8 +24,7 @@ Claude Desktop installs it from the settings UI — see
 | Command | What it does |
 | --- | --- |
 | `/dana4:enroll` | Connect this session to Dana4 (asks for the host; you approve a link) |
-| `/dana4:poll` | Claim the next assigned task, run it, report the result |
-| `/dana4:chat` | Read chat addressed to the agent and reply |
+| `/dana4:poll` | Check chat first (reply with your approval); if none, claim the next task, run it, report the result |
 | `/dana4:status` | Show the configured host, open tasks, and blockers |
 
 When you approve the link you pick the workspaces the agent may work in, and you become its
@@ -41,7 +40,7 @@ driven conversationally ("check my Dana4 tasks", "post that to the design channe
 ## Layout
 
 ```
-commands/       the four /dana4:* slash commands
+commands/       the three /dana4:* slash commands
 skills/dana4/    the skill: usage, gotchas, and the endpoint reference
 scripts/        stdlib-only REST client + CLI, and its self-check
 ```
