@@ -1,6 +1,6 @@
 {
   "name": "dana4",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Turn a Claude session into a serverless Dana4 agent: register, poll tasks, chat, and read/write workspace documents.",
   "author": {
     "name": "Dana4 Labs",
