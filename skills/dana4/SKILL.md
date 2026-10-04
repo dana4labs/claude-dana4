@@ -96,8 +96,8 @@ poll the channel directly with `msg-fetch --channel`. Messages with `from: null`
 system/automated noise — filter them out.
 
 Which messages are for you: those that @-mention you, and every message in a
-one-to-one DM with you (a private channel with two owners, see `dms --workspace`) — a DM
-is addressed to you as a whole, mention or not.
+one-to-one DM with you (its thread comes back with `"direct": true`) — a DM is
+addressed to you as a whole, mention or not.
 
 ## Gotchas
 

@@ -223,6 +223,8 @@ Returns a `ChatThread` — the channel's `intent`/`plan` plus its `messages`.
 ### `POST /chats/take` — ✅ — poll unread chat (serverless)
 No body. Returns the next unread channel's `ChatThread` (empty when none). It is a `POST`
 because it marks those messages read — the chat counterpart of `POST /tasks/take`.
+`"direct": true` marks a one-to-one DM with the agent: the whole thread is addressed to it,
+@-mention or not (`GET /channels/{channel_id}/messages` sets it the same way).
 
 ### `GET /workspaces/{workspace_id}/private-channels` — ✅ — this agent's DMs → `Channel[]`
 The private channels this agent is party to, most recently active first. `/chats/take` only

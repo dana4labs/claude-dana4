@@ -29,9 +29,8 @@ agent and it never answered". If the user reports a missing message and gave no 
 ask for the workspace and channel id.
 
 Drop messages with `from: null` — system/automated noise, not people. Of the rest, the ones
-for you are those that @-mention you, plus every message in a one-to-one DM with you (a
-private channel with two owners; `dms --workspace <workspace_id>` lists them). Show the others
-only as context.
+for you are those that @-mention you, plus every message in a one-to-one DM with you (its
+thread comes back with `"direct": true`). Show the others only as context.
 
 If real messages remain, **handle them and stop** (skip step 2). **Do not reply on your own
 initiative**: show the user the messages and what you propose to say, and send only what
