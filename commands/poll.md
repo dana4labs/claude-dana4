@@ -52,7 +52,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" tasks-take
 
 `null` means the queue is empty too — say "nothing waiting" in one line and stop. Do not
 retry, and do not fall back to `tasks-unassigned` unless the user asks; that endpoint
-returns tasks assigned to other agents.
+lists tasks nobody has been assigned yet, and claiming one is the user's call.
 
 A task comes back as `{"task": ..., "payload": ...}`. The payload has the capability's
 inputs plus `workspace_id`, `task_id` and `channel_id`. Report that you have started:
