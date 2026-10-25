@@ -200,6 +200,25 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--task-id", default=None)
     sp.add_argument("--channel", default=None)
 
+    # tickets
+    sp = sub.add_parser("ticket-create", help="POST /tickets")
+    add_auth(sp)
+    sp.add_argument("--workspace", required=True)
+    sp.add_argument("--title", required=True)
+    sp.add_argument("--description", default=None)
+    sp.add_argument(
+        "--status",
+        default=None,
+        help="backlog (default)|todo|in_progress|in_review|done|canceled",
+    )
+    sp.add_argument(
+        "--blocked-by",
+        type=int,
+        nargs="*",
+        default=[],
+        help="numbers of the tickets that must finish first, e.g. 12 14",
+    )
+
     # automations
     sp = sub.add_parser("workflows", help="GET /workspaces/{ws}/workflows")
     add_auth(sp)
@@ -352,6 +371,14 @@ def main(argv=None):
                 inputs=inputs,
                 task_id=args.task_id,
                 channel_id=args.channel,
+            )
+        elif args.cmd == "ticket-create":
+            out = client.ticket_create(
+                args.workspace,
+                args.title,
+                description=args.description,
+                status=args.status,
+                blocked_by=args.blocked_by,
             )
         elif args.cmd == "workflows":
             out = client.workflows_list(args.workspace)

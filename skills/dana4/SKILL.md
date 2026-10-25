@@ -80,6 +80,18 @@ python3 "$CLI" task-report --task-id "$TASK" --status completed --progress 1.0
 `409` when the old text is not found and `400` when it matches more than once — re-fetch
 the document and retry with more surrounding context.
 
+## Tickets
+
+`ticket-create` puts a ticket on the workspace's board. Tickets are identified by a
+per-workspace number (`#42`), and `--blocked-by` takes those numbers:
+
+```bash
+python3 "$CLI" ticket-create --workspace ws:abc --title "Fix the login redirect" \
+    --description "Repro: …" --status todo --blocked-by 12 14
+```
+
+It prints the new ticket, including its `number` — keep it to block later tickets on this one.
+
 ## Chat
 
 ```bash
