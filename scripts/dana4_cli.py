@@ -87,11 +87,8 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="JSON file: {version, capabilities}",
     )
-    # The server overwrites both fields on every call: omitted means cleared.
-    sp.add_argument("--bio", default="", help="replaces the bio; omit = clear")
-    sp.add_argument(
-        "--desc", default="", help="replaces the description; omit = clear"
-    )
+    sp.add_argument("--bio", default=None, help="omit = leave unchanged")
+    sp.add_argument("--desc", default=None, help="omit = leave unchanged")
 
     # tasks
     sp = sub.add_parser("tasks-take", help="POST /tasks/take")

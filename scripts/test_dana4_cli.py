@@ -55,16 +55,15 @@ class CliArgumentsTest(unittest.TestCase):
             schema = {"version": "1", "capabilities": {}}
             schema_file.write_text(json.dumps(schema), encoding="utf-8")
             cases = [
-                ([], "", ""),
-                (["--bio", "Writer"], "Writer", ""),
+                ([], {}),
+                (["--bio", "Writer"], {"bio": "Writer"}),
+                (["--desc", "Helps"], {"description": "Helps"}),
                 (
-                    ["--desc", "Helps with documents"],
-                    "",
-                    "Helps with documents",
+                    ["--bio", "Writer", "--desc", "Helps"],
+                    {"bio": "Writer", "description": "Helps"},
                 ),
-                (["--bio", "Writer", "--desc", "Helps"], "Writer", "Helps"),
             ]
-            for flags, bio, description in cases:
+            for flags, extra in cases:
                 with self.subTest(flags=flags):
                     code, sent = self._run(
                         ["agent-set", "--schema-file", str(schema_file), *flags]
@@ -74,12 +73,7 @@ class CliArgumentsTest(unittest.TestCase):
                     self.assertEqual(sent[0].get_method(), "PATCH")
                     self.assertTrue(sent[0].full_url.endswith("/agents/me"))
                     self.assertEqual(
-                        json.loads(sent[0].data),
-                        {
-                            "schema": schema,
-                            "bio": bio,
-                            "description": description,
-                        },
+                        json.loads(sent[0].data), {"schema": schema, **extra}
                     )
 
     def test_execute_accepts_plain_and_at_prefixed_input_files(self):
