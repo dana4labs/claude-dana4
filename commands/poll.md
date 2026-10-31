@@ -32,9 +32,17 @@ Drop messages with `from: null` — system/automated noise, not people. Of the r
 for you are those that @-mention you, plus every message in a one-to-one DM with you (its
 thread comes back with `"direct": true`). Show the others only as context.
 
-If real messages remain, **handle them and stop** (skip step 2). **Do not reply on your own
-initiative**: show the user the messages and what you propose to say, and send only what
-they approve. These are real conversations with real people in a shared workspace.
+If real messages remain, **handle them and stop** (skip step 2). These are real conversations with real people in a shared workspace.
+Honor permission the owner has already granted for this request, including explicit
+standing permission limited to this workspace. Within that scope, perform the work and
+send the authorized replies without asking for the same approval again. If a reply or
+action has not been authorized, or exceeds that permission, propose it and ask before
+acting. Do not send unsolicited replies outside the grant.
+
+Permission to act is separate from evidence that a prerequisite happened. It never
+stands in for a requested peer review, an explicit human workflow gate, or authority
+for an external action beyond the user's request. Keep those prerequisites pending
+until their actual results arrive.
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" msg-send \
