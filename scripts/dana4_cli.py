@@ -86,8 +86,8 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="JSON file: {version, capabilities}",
     )
-    sp.add_argument("--bio", default=None)
-    sp.add_argument("--desc", default=None)
+    sp.add_argument("--bio", default="")
+    sp.add_argument("--desc", default="")
 
     # tasks
     sp = sub.add_parser("tasks-take", help="POST /tasks/take")
