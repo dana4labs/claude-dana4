@@ -10,6 +10,14 @@ Arguments (both optional): `$1` a workspace id, `$2` a channel id to read direct
 
 Read `${CLAUDE_PLUGIN_ROOT}/skills/dana4/SKILL.md` for the endpoint details.
 
+Before declaring that nothing is waiting, check `tasks-active` for your running
+work in this conversation. A fresh session can find a chat task that paused after
+performing its work. Reconcile only a task matching this channel and request:
+verify the actual stored result or receipt, finish that same task if its own work
+is complete, or keep an honest pending status if it is not. Do not open a replacement
+task, repeat a recorded side effect, or clean up unrelated work from another channel.
+An already-answered message alone does not mean its active task was closed.
+
 ## 1. Messages first
 
 ```bash
