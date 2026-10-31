@@ -53,27 +53,45 @@ class CliArgumentsTest(unittest.TestCase):
             cases = [
                 ([], "", ""),
                 (["--bio", "Writer"], "Writer", ""),
-                (["--desc", "Helps with documents"], "", "Helps with documents"),
+                (
+                    ["--desc", "Helps with documents"],
+                    "",
+                    "Helps with documents",
+                ),
                 (["--bio", "Writer", "--desc", "Helps"], "Writer", "Helps"),
             ]
             for flags, bio, description in cases:
                 with self.subTest(flags=flags):
-                    client = Dana4Client(host="https://test.example", api_key="d4a_test")
+                    client = Dana4Client(
+                        host="https://test.example", api_key="d4a_test"
+                    )
                     sent = _capture(client)
                     with (
-                        patch.object(dana4_cli, "Dana4Client", return_value=client),
+                        patch.object(
+                            dana4_cli, "Dana4Client", return_value=client
+                        ),
                         contextlib.redirect_stdout(io.StringIO()),
                     ):
-                        code = dana4_cli.main([
-                            "agent-set", "--schema-file", str(schema_file), *flags
-                        ])
+                        code = dana4_cli.main(
+                            [
+                                "agent-set",
+                                "--schema-file",
+                                str(schema_file),
+                                *flags,
+                            ]
+                        )
                     self.assertEqual(code, 0)
                     self.assertEqual(len(sent), 1)
                     self.assertEqual(sent[0].get_method(), "PATCH")
                     self.assertTrue(sent[0].full_url.endswith("/agents/me"))
-                    self.assertEqual(json.loads(sent[0].data), {
-                        "schema": schema, "bio": bio, "description": description
-                    })
+                    self.assertEqual(
+                        json.loads(sent[0].data),
+                        {
+                            "schema": schema,
+                            "bio": bio,
+                            "description": description,
+                        },
+                    )
 
     def test_execute_accepts_plain_and_at_prefixed_input_files(self):
         original_directory = pathlib.Path.cwd()
