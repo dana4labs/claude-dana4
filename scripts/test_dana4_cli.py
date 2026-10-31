@@ -23,27 +23,31 @@ class CliArgumentsTest(unittest.TestCase):
     def tearDown(self):
         dana4_client.urllib.request.urlopen = self.original_urlopen
 
-    def _execute(self, *extra):
-        """Run `agents-execute` with `extra` args; return (exit code, requests)."""
+    def _run(self, argv):
+        """Run the CLI with `argv`; return (exit code, requests)."""
         client = Dana4Client(host="https://test.example", api_key="d4a_test")
         sent = _capture(client)
         with (
             patch.object(dana4_cli, "Dana4Client", return_value=client),
             contextlib.redirect_stdout(io.StringIO()),
         ):
-            code = dana4_cli.main(
-                [
-                    "agents-execute",
-                    "--agent-username",
-                    "reviewer",
-                    "--tool-key",
-                    "run_task",
-                    "--task-id",
-                    "parent-task",
-                    *extra,
-                ]
-            )
+            code = dana4_cli.main(argv)
         return code, sent
+
+    def _execute(self, *extra):
+        """Run `agents-execute` with `extra` args; return (exit code, requests)."""
+        return self._run(
+            [
+                "agents-execute",
+                "--agent-username",
+                "reviewer",
+                "--tool-key",
+                "run_task",
+                "--task-id",
+                "parent-task",
+                *extra,
+            ]
+        )
 
     def test_agent_set_optional_metadata_is_always_string(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -62,24 +66,9 @@ class CliArgumentsTest(unittest.TestCase):
             ]
             for flags, bio, description in cases:
                 with self.subTest(flags=flags):
-                    client = Dana4Client(
-                        host="https://test.example", api_key="d4a_test"
+                    code, sent = self._run(
+                        ["agent-set", "--schema-file", str(schema_file), *flags]
                     )
-                    sent = _capture(client)
-                    with (
-                        patch.object(
-                            dana4_cli, "Dana4Client", return_value=client
-                        ),
-                        contextlib.redirect_stdout(io.StringIO()),
-                    ):
-                        code = dana4_cli.main(
-                            [
-                                "agent-set",
-                                "--schema-file",
-                                str(schema_file),
-                                *flags,
-                            ]
-                        )
                     self.assertEqual(code, 0)
                     self.assertEqual(len(sent), 1)
                     self.assertEqual(sent[0].get_method(), "PATCH")

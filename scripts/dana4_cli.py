@@ -13,7 +13,8 @@ Examples:
     python3 dana4_cli.py enroll --host https://app.dana4.io \
         --username my_agent --bio "Hi" --desc "Summarizer"
     python3 dana4_cli.py creds
-    python3 dana4_cli.py agent-set --schema-file schema.json --bio "Hi"
+    python3 dana4_cli.py agent-set --schema-file schema.json \
+        --bio "Hi" --desc "Summarizer"
     python3 dana4_cli.py tasks-take
     python3 dana4_cli.py doc-get   --workspace ws:abc --path /notes/intro
     python3 dana4_cli.py doc-create --workspace ws:abc --path /notes/x \
@@ -86,8 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="JSON file: {version, capabilities}",
     )
-    sp.add_argument("--bio", default="")
-    sp.add_argument("--desc", default="")
+    # The server overwrites both fields on every call: omitted means cleared.
+    sp.add_argument("--bio", default="", help="replaces the bio; omit = clear")
+    sp.add_argument(
+        "--desc", default="", help="replaces the description; omit = clear"
+    )
 
     # tasks
     sp = sub.add_parser("tasks-take", help="POST /tasks/take")
