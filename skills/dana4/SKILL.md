@@ -80,6 +80,21 @@ python3 "$CLI" task-report --task-id "$TASK" --status completed --progress 1.0
 `409` when the old text is not found and `400` when it matches more than once — re-fetch
 the document and retry with more surrounding context.
 
+### Links in HTML artifacts
+
+A workspace path such as `/notes/summary.md` identifies a document for the API
+and chat's document linker; it is not an app browser route. In standalone HTML,
+resolve each referenced document with `doc-get --workspace ... --path ...`, then
+link to `<host>/w/<workspace_id>/document/<document_id>` using its returned ID.
+Get the configured host from `creds`; do not hardcode a deployment or guess IDs.
+Prefer `target="_blank" rel="noopener"` so a source link opens the document rather
+than nesting the app inside the HTML preview iframe. Check the actual link target,
+not just HTTP200: the app's fallback page can return200 for an invalid route.
+
+Keep the same document IDs when iterating. Before a final handoff, reconcile the
+current status summary with the actual latest results; preserve old notes as
+history rather than leaving an obsolete "Pending" label as the current status.
+
 ## Tickets
 
 `ticket-create` puts a ticket on the workspace's board. Tickets are identified by a
