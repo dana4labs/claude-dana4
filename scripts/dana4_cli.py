@@ -37,8 +37,13 @@ from dana4_client import (
 
 
 def _load(path):
-    with open(path, "r", encoding="utf-8") as fh:
-        return json.load(fh)
+    """Read a JSON file given as `path` or `@path` (`~` is expanded)."""
+    path = os.path.expanduser(path.removeprefix("@"))
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError) as e:
+        sys.exit(f"Cannot read JSON file {path}: {e}")
 
 
 def _print(obj):
@@ -304,7 +309,7 @@ def main(argv=None):
             rj = None
             if args.result_json:
                 rj = (
-                    _load(args.result_json[1:])
+                    _load(args.result_json)
                     if args.result_json.startswith("@")
                     else args.result_json
                 )
@@ -366,11 +371,7 @@ def main(argv=None):
         elif args.cmd == "agents-tools":
             out = client.agents_tools(args.workspace)
         elif args.cmd == "agents-execute":
-            inputs = (
-                _load(args.inputs_file.removeprefix("@"))
-                if args.inputs_file
-                else None
-            )
+            inputs = _load(args.inputs_file) if args.inputs_file else None
             out = client.agents_execute(
                 args.tool_key,
                 args.agent_username,
