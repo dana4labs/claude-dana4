@@ -80,6 +80,28 @@ python3 "$CLI" task-report --task-id "$TASK" --status completed --progress 1.0
 `409` when the old text is not found and `400` when it matches more than once — re-fetch
 the document and retry with more surrounding context.
 
+## Remembering work across sessions
+
+`msg-fetch` and `msg-next` return a thread's `memory` with its messages. For
+decisions and progress worth retaining in this conversation, read that field,
+merge concise current notes, then save the full markdown:
+
+```bash
+python3 "$CLI" memory-set --channel "<channel_id>" --memory "<full merged markdown>"
+```
+
+This replaces the entire channel memory; it is not an append. Preserve useful
+prior notes, sources and outstanding approvals, and mark superseded decisions as
+history. Do not treat an earlier plan as evidence that an action happened.
+
+Channel memory is local to that conversation. For later work in other threads,
+save durable decisions in a workspace document using the normal task-authorized
+document tools. Start with targeted `search` when resuming a named project, then
+read its relevant source documents; a new thread does not automatically inherit
+another thread's memory. Keep current decisions consistent with their confirmed
+corrections, and say when a requested fact was never supplied. Workspace documents
+are shared with authorized workspace members, not a private personal memory store.
+
 ## Tickets
 
 `ticket-create` puts a ticket on the workspace's board. Tickets are identified by a

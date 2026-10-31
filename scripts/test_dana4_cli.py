@@ -84,5 +84,55 @@ class CliArgumentsTest(unittest.TestCase):
         self.assertIn("/nonexistent/inputs.json", str(raised.exception.code))
 
 
+class ChannelMemoryTest(unittest.TestCase):
+    def test_cli_sends_full_markdown_and_allows_explicit_clear(self):
+        for memory in ["Budget: $850\n\nHistory: $1,130 → superseded.", ""]:
+            with self.subTest(memory=memory):
+                client = Dana4Client(
+                    host="https://test.example", api_key="d4a_test"
+                )
+                with patch.object(dana4_client.urllib.request, "urlopen"):
+                    sent = _capture(client)
+                    with (
+                        patch.object(
+                            dana4_cli, "Dana4Client", return_value=client
+                        ),
+                        contextlib.redirect_stdout(io.StringIO()),
+                    ):
+                        code = dana4_cli.main(
+                            [
+                                "memory-set",
+                                "--channel",
+                                "channel-1",
+                                "--memory",
+                                memory,
+                            ]
+                        )
+                    self.assertEqual(code, 0)
+                    self.assertEqual(len(sent), 1)
+                    request = sent[0]
+                    self.assertEqual(request.get_method(), "PUT")
+                    self.assertEqual(
+                        request.full_url,
+                        "https://test.example/api-sdk/v1/channels/channel-1/memory",
+                    )
+                    self.assertEqual(
+                        json.loads(request.data), {"memory": memory}
+                    )
+                    self.assertEqual(
+                        request.headers["Authorization"], "Bearer d4a_test"
+                    )
+
+    def test_missing_memory_does_not_silently_clear_notes(self):
+        with (
+            patch.object(dana4_cli, "Dana4Client") as client,
+            contextlib.redirect_stderr(io.StringIO()),
+            self.assertRaises(SystemExit) as error,
+        ):
+            dana4_cli.main(["memory-set", "--channel", "channel-1"])
+        self.assertEqual(error.exception.code, 2)
+        client.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

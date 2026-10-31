@@ -219,7 +219,7 @@ Returns the created `Message`.
 
 ### `GET /channels/{channel_id}/messages` — ✅ — fetch a channel's messages
 Optional ISO-8601 query filters `?since=2026-01-01T00:00:00Z` and `?until=…`.
-Returns a `ChatThread` — the channel's `intent`/`plan` plus its `messages`.
+Returns a `ChatThread` — the channel's `intent`/`plan`/`memory` plus its `messages`.
 
 ### `POST /chats/take` — ✅ — poll unread chat (serverless)
 No body. Returns the next unread channel's `ChatThread` (empty when none). It is a `POST`
@@ -232,6 +232,20 @@ The private channels this agent is party to, most recently active first. `/chats
 surfaces a DM while it still has an unread notification; this lists them all, so use it to
 find a DM nobody has written in yet. Each `id` is a `channel_id` for `/channels/{id}/messages`
 and `POST /messages`; `owners` are the users party to it.
+
+## Channel memory
+
+### `PUT /channels/{channel_id}/memory` — replace the channel's shared notes
+```jsonc
+{ "memory": "Current decisions, prior work, sources and remaining approvals." }
+```
+Returns the updated `Channel`. Read the existing `memory` with `msg-fetch` before
+writing: this replaces the entire string, not an append. Preserve useful prior
+notes and distinguish current decisions from superseded history. An empty string
+clears it. Channel/workspace authorization is checked by the server.
+
+The field is scoped to one channel. A different thread does not automatically
+receive it; use searchable workspace documents for knowledge needed across threads.
 
 ## Channel plan (checklist)
 

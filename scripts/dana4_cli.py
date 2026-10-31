@@ -170,6 +170,16 @@ def build_parser() -> argparse.ArgumentParser:
     add_auth(sp)
     sp.add_argument("--workspace", required=True)
 
+    sp = sub.add_parser(
+        "memory-set",
+        help="PUT /channels/{channel_id}/memory — replace shared notes",
+    )
+    add_auth(sp)
+    sp.add_argument("--channel", required=True)
+    sp.add_argument(
+        "--memory", required=True, help="full markdown, not just new notes"
+    )
+
     # plan
     sp = sub.add_parser("plan-set", help="PUT /channels/{channel_id}/plan")
     add_auth(sp)
@@ -360,6 +370,8 @@ def main(argv=None):
             out = client.messages_read_next_chat()
         elif args.cmd == "dms":
             out = client.private_channels(args.workspace)
+        elif args.cmd == "memory-set":
+            out = client.channel_memory_set(args.channel, args.memory)
         elif args.cmd == "plan-set":
             out = client.channel_plan_set(args.channel, args.plan)
         elif args.cmd == "plan-complete":
