@@ -192,31 +192,6 @@ def test_enroll_polls_until_approved():
     assert json.loads(sent[-1].data) == {"device_code": "dc"}
 
 
-def main():
-    real_urlopen = dana4_client.urllib.request.urlopen
-    saved = {k: os.environ.get(k) for k in CREDS_KEYS + (CREDS_ENV_VAR,)}
-    try:
-        with tempfile.TemporaryDirectory() as d:
-            tmp = pathlib.Path(d)
-            test_creds_roundtrip_and_permissions(tmp)
-            test_env_beats_file(tmp)
-            test_no_host_defaults_to_production(tmp)
-            test_auth_header()
-            test_bodyless_writes_send_empty_json()
-            test_enroll_polls_until_approved()
-    finally:
-        dana4_client.urllib.request.urlopen = real_urlopen
-        for k, v in saved.items():
-            os.environ.pop(k, None)
-            if v is not None:
-                os.environ[k] = v
-    print("all checks passed")
-
-
-if __name__ == "__main__":
-    main()
-
-
 def test_ticket_create_posts_numbers_not_ids():
     c = Dana4Client(host="https://x.example", api_key="d4a_k")
     sent = _capture(c)
@@ -229,3 +204,30 @@ def test_ticket_create_posts_numbers_not_ids():
         "status": None,
         "blocked_by": [12, 14],
     }
+
+
+def main():
+    real_urlopen = dana4_client.urllib.request.urlopen
+    saved = {k: os.environ.get(k) for k in CREDS_KEYS + (CREDS_ENV_VAR,)}
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            tmp = pathlib.Path(d)
+            test_creds_roundtrip_and_permissions(tmp)
+            test_env_beats_file(tmp)
+            test_no_host_defaults_to_production(tmp)
+            test_auth_header()
+            test_bodyless_writes_send_empty_json()
+            test_enroll_polls_until_approved()
+            test_ticket_create_posts_numbers_not_ids()
+    finally:
+        dana4_client.urllib.request.urlopen = real_urlopen
+        for k, v in saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+    print("all checks passed")
+
+
+if __name__ == "__main__":
+    main()
+
