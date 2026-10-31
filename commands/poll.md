@@ -20,7 +20,7 @@ If the user named a channel, **also** read it, because the inbox is not the chan
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" msg-fetch \
-    --workspace "<workspace_id>" --channel "<channel_id>"
+    --channel "<channel_id>"
 ```
 
 `msg-next` only returns chats the server routed to this agent. A message posted in a channel

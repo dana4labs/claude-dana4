@@ -196,7 +196,9 @@ def build_parser() -> argparse.ArgumentParser:
     add_auth(sp)
     sp.add_argument("--tool-key", required=True)
     sp.add_argument("--agent-username", required=True)
-    sp.add_argument("--inputs-file", default=None)
+    sp.add_argument(
+        "--inputs-file", default=None, help="JSON input file (path or @path)"
+    )
     sp.add_argument("--task-id", default=None)
     sp.add_argument("--channel", default=None)
 
@@ -364,7 +366,11 @@ def main(argv=None):
         elif args.cmd == "agents-tools":
             out = client.agents_tools(args.workspace)
         elif args.cmd == "agents-execute":
-            inputs = _load(args.inputs_file[1:]) if args.inputs_file else None
+            inputs = (
+                _load(args.inputs_file.removeprefix("@"))
+                if args.inputs_file
+                else None
+            )
             out = client.agents_execute(
                 args.tool_key,
                 args.agent_username,
