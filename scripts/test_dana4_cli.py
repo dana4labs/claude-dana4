@@ -23,27 +23,29 @@ class CliArgumentsTest(unittest.TestCase):
     def tearDown(self):
         dana4_client.urllib.request.urlopen = self.original_urlopen
 
-    def _execute(self, *extra):
-        """Run `agents-execute` with `extra` args; return (exit code, requests)."""
+    def _run(self, *argv):
+        """Run the CLI with `argv`; return (exit code, requests)."""
         client = Dana4Client(host="https://test.example", api_key="d4a_test")
         sent = _capture(client)
         with (
             patch.object(dana4_cli, "Dana4Client", return_value=client),
             contextlib.redirect_stdout(io.StringIO()),
         ):
-            code = dana4_cli.main(
-                [
-                    "agents-execute",
-                    "--agent-username",
-                    "reviewer",
-                    "--tool-key",
-                    "run_task",
-                    "--task-id",
-                    "parent-task",
-                    *extra,
-                ]
-            )
+            code = dana4_cli.main(list(argv))
         return code, sent
+
+    def _execute(self, *extra):
+        """Run `agents-execute` with `extra` args; return (exit code, requests)."""
+        return self._run(
+            "agents-execute",
+            "--agent-username",
+            "reviewer",
+            "--tool-key",
+            "run_task",
+            "--task-id",
+            "parent-task",
+            *extra,
+        )
 
     def test_execute_accepts_plain_and_at_prefixed_input_files(self):
         original_directory = pathlib.Path.cwd()
@@ -83,47 +85,30 @@ class CliArgumentsTest(unittest.TestCase):
             self._execute("--inputs-file", "@/nonexistent/inputs.json")
         self.assertIn("/nonexistent/inputs.json", str(raised.exception.code))
 
-
-class ChannelMemoryTest(unittest.TestCase):
-    def test_cli_sends_full_markdown_and_allows_explicit_clear(self):
-        for memory in ["Budget: $850\n\nHistory: $1,130 → superseded.", ""]:
+    def test_memory_set_sends_full_markdown_and_allows_explicit_clear(self):
+        for memory in [
+            "Budget: $850\n\nHistory: $1,130 → superseded.",
+            "",
+            "---",  # dash-led: only the `--memory=` form passes it through
+        ]:
             with self.subTest(memory=memory):
-                client = Dana4Client(
-                    host="https://test.example", api_key="d4a_test"
+                code, sent = self._run(
+                    "memory-set", "--channel", "channel-1", f"--memory={memory}"
                 )
-                with patch.object(dana4_client.urllib.request, "urlopen"):
-                    sent = _capture(client)
-                    with (
-                        patch.object(
-                            dana4_cli, "Dana4Client", return_value=client
-                        ),
-                        contextlib.redirect_stdout(io.StringIO()),
-                    ):
-                        code = dana4_cli.main(
-                            [
-                                "memory-set",
-                                "--channel",
-                                "channel-1",
-                                "--memory",
-                                memory,
-                            ]
-                        )
-                    self.assertEqual(code, 0)
-                    self.assertEqual(len(sent), 1)
-                    request = sent[0]
-                    self.assertEqual(request.get_method(), "PUT")
-                    self.assertEqual(
-                        request.full_url,
-                        "https://test.example/api-sdk/v1/channels/channel-1/memory",
-                    )
-                    self.assertEqual(
-                        json.loads(request.data), {"memory": memory}
-                    )
-                    self.assertEqual(
-                        request.headers["Authorization"], "Bearer d4a_test"
-                    )
+                self.assertEqual(code, 0)
+                self.assertEqual(len(sent), 1)
+                request = sent[0]
+                self.assertEqual(request.get_method(), "PUT")
+                self.assertEqual(
+                    request.full_url,
+                    "https://test.example/api-sdk/v1/channels/channel-1/memory",
+                )
+                self.assertEqual(json.loads(request.data), {"memory": memory})
+                self.assertEqual(
+                    request.headers["Authorization"], "Bearer d4a_test"
+                )
 
-    def test_missing_memory_does_not_silently_clear_notes(self):
+    def test_memory_set_without_memory_does_not_silently_clear_notes(self):
         with (
             patch.object(dana4_cli, "Dana4Client") as client,
             contextlib.redirect_stderr(io.StringIO()),

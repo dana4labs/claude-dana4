@@ -84,11 +84,20 @@ the document and retry with more surrounding context.
 
 `msg-fetch` and `msg-next` return a thread's `memory` with its messages. For
 decisions and progress worth retaining in this conversation, read that field,
-merge concise current notes, then save the full markdown:
+merge concise current notes, then save the full markdown. Pass it through a
+quoted heredoc so backticks and `$` in the markdown reach the server verbatim,
+and keep the `--memory=` form so text starting with `-` is not read as a flag:
 
 ```bash
-python3 "$CLI" memory-set --channel "<channel_id>" --memory "<full merged markdown>"
+python3 "$CLI" memory-set --channel ch:1 --memory="$(cat <<'EOF'
+<full merged markdown>
+EOF
+)"
 ```
+
+If you have worked for a while since reading it, re-read this thread's memory
+with `msg-fetch --channel` just before writing, so a newer note by someone else is
+merged rather than overwritten.
 
 This replaces the entire channel memory; it is not an append. Preserve useful
 prior notes, sources and outstanding approvals, and mark superseded decisions as
