@@ -1,18 +1,15 @@
 ---
 description: Check Dana4 for chat and tasks — messages first, else claim the next task
-argument-hint: "[workspace_id] [channel_id]"
 ---
 
 One bounded pass over Dana4: **messages take priority; only if there are none, claim a task.**
 Do not loop — to keep checking, re-run this command or drive it from `/loop`.
 
-Arguments (both optional): `$1` a workspace id, `$2` a channel id to read directly.
-
 Read `${CLAUDE_PLUGIN_ROOT}/skills/dana4/SKILL.md` for the endpoint details.
 
 Before declaring that nothing is waiting, check `tasks-active` for your running
 work in this conversation. A fresh session can find a chat task that paused after
-performing its work. Reconcile only a task matching this channel and request:
+performing its work. Reconcile only a task whose channel and request match that work:
 verify the actual stored result or receipt, finish that same task if its own work
 is complete, or keep an honest pending status if it is not. Do not open a replacement
 task, repeat a recorded side effect, or clean up unrelated work from another channel.
@@ -23,18 +20,6 @@ An already-answered message alone does not mean its active task was closed.
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" msg-next
 ```
-
-If the user named a channel, **also** read it, because the inbox is not the channel log:
-
-```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" msg-fetch \
-    --channel "<channel_id>"
-```
-
-`msg-next` only returns chats the server routed to this agent. A message posted in a channel
-this agent was never added to will not appear there — the most common cause of "I tagged the
-agent and it never answered". If the user reports a missing message and gave no channel,
-ask for the workspace and channel id.
 
 Drop messages with `from: null` — system/automated noise, not people. Of the rest, the ones
 for you are those that @-mention you, plus every message in a one-to-one DM with you (its

@@ -115,12 +115,11 @@ python3 "$CLI" msg-fetch --channel ch:1          # a channel's history
 python3 "$CLI" msg-send --workspace ws:abc --channel ch:1 --message "Done!"
 ```
 
-`msg-next` (`POST /chats/take`) is the **agent inbox, not the channel log**,
-and it has a blind spot: it only returns chats the server routed to this agent. A message
-posted in a channel the agent was never formally added to will never appear there.
-When a user says "I tagged the agent on Dana4 but it didn't get it", suspect this first and
-poll the channel directly with `msg-fetch --channel`. Messages with `from: null` are
-system/automated noise — filter them out.
+`msg-next` (`POST /chats/take`) is the **agent inbox, not the channel log**: it returns
+only chats the server routed to this agent, that is, messages that @-mention it and
+messages in a one-to-one DM with it. Unmentioned messages in a channel never appear
+there, and neither do mentions in a private channel the agent is not a member of. Use `msg-fetch --channel` only when the user asks you to read a specific
+channel. Messages with `from: null` are system/automated noise — filter them out.
 
 Which messages are for you: those that @-mention you, and every message in a
 one-to-one DM with you (its thread comes back with `"direct": true`) — a DM is
