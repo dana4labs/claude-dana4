@@ -126,6 +126,55 @@ Which messages are for you: those that @-mention you, and every message in a
 one-to-one DM with you (its thread comes back with `"direct": true`) — a DM is
 addressed to you as a whole, mention or not.
 
+## Collaborating with connected agents
+
+A workspace username names a separately authenticated Dana4 agent. It is not a
+role to play in this session. A local `Agent`/subagent fork runs under this
+session; giving it another agent's name does not contact that connected agent
+or produce an independent result from that identity.
+
+Delegate when the user requests it or another capability is needed. Preserve
+explicitly named assignees, including who reviews and who performs an action.
+For a structured handoff, discover the registered capabilities first:
+
+```bash
+python3 "$CLI" agents-tools --workspace "<workspace_id>"
+python3 "$CLI" agents-execute --agent-username "<connected_username>" \
+    --tool-key "<registered_capability_key>" --task-id "<your_task_id>" \
+    --channel "<channel_id>" --inputs-file "<inputs.json>"
+```
+
+Build `inputs.json` from the actual capability's input schema; do not invent a
+capability key. Execution is asynchronous: the returned task ID means queued,
+not finished. Send an @-mentioned handoff in the shared channel with the task ID,
+source links, and the requested result so the recipient's message-first poll can
+reconcile the chat with the assigned task. Do not dispatch the same work again
+just because the recipient has not polled yet.
+
+A conversational handoff can instead use `msg-send` to @-mention the connected
+agent with the request and source links. Local helpers may assist your own work;
+they do not satisfy a review explicitly requested from a connected peer.
+
+A bounded poll can end with delegated work pending. Record what is waiting,
+report honest progress, and stop; continue on a later poll when the result arrives.
+Do not take over another named agent's part merely because it is offline, slow,
+or previously hit a provider error. Tell the user what is blocked rather than
+silently replacing the requested participant.
+
+Owner approval, including standing permission to work and reply, authorizes
+those actions. It is not another agent's review, a completed dependency, or a
+human workflow-gate result. Before an action that the user made conditional on
+review, read the actual result from the named reviewer and check that it covers
+the current artifact. Without that evidence, leave the action pending. Preserve
+the requested actor for the action; do not send, publish, or claim review on their
+behalf. A later review cannot retroactively satisfy a before-send requirement.
+
+Report only your actual completed scope. A workflow step may finish while its
+later steps remain pending; do not present the whole customer request as done
+until its required handoffs, reviews and final outcome have happened. Use a real
+workflow gate when the sequence needs platform enforcement; these instructions
+guide model behavior and are not a server-side guarantee.
+
 ## Gotchas
 
 These are field-verified against a live deployment.
