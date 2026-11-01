@@ -1,18 +1,15 @@
 ---
 description: Check Dana4 for chat and tasks — messages first, else claim the next task
-argument-hint: "[workspace_id]"
 ---
 
 One bounded pass over Dana4: **messages take priority; only if there are none, claim a task.**
 Do not loop — to keep checking, re-run this command or drive it from `/loop`.
 
-Argument (optional): `$0` a workspace id.
-
 Read `${CLAUDE_PLUGIN_ROOT}/skills/dana4/SKILL.md` for the endpoint details.
 
 Before declaring that nothing is waiting, check `tasks-active` for your running
 work in this conversation. A fresh session can find a chat task that paused after
-performing its work. Reconcile only a task matching this channel and request:
+performing its work. Reconcile only a task whose channel and request match that work:
 verify the actual stored result or receipt, finish that same task if its own work
 is complete, or keep an honest pending status if it is not. Do not open a replacement
 task, repeat a recorded side effect, or clean up unrelated work from another channel.
