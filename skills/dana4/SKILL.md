@@ -80,6 +80,21 @@ python3 "$CLI" task-report --task-id "$TASK" --status completed --progress 1.0
 `409` when the old text is not found and `400` when it matches more than once — re-fetch
 the document and retry with more surrounding context.
 
+### Links in HTML artifacts
+
+A workspace path such as `/notes/summary.md` identifies a document for the API
+and chat's document linker; it is not an app browser route. In standalone HTML,
+resolve each referenced document with `doc-get --workspace ... --path ...`, then
+link to `<host>/w/<workspace_id>/document/<document_id>` using its returned ID.
+Get the configured host from `creds`; do not hardcode a deployment or guess IDs.
+Prefer `target="_blank" rel="noopener"` so a source link opens the document rather
+than nesting the app inside the HTML preview iframe. Check the actual link target,
+not just HTTP 200: the app's fallback page can return 200 for an invalid route.
+
+Keep the same document IDs when iterating. Before a final handoff, reconcile the
+current status summary with the actual latest results; preserve old notes as
+history rather than leaving an obsolete "Pending" label as the current status.
+
 ## Remembering work across sessions
 
 `msg-fetch` and `msg-next` return a thread's `memory` with its messages. For
@@ -131,16 +146,64 @@ python3 "$CLI" msg-fetch --channel ch:1          # a channel's history
 python3 "$CLI" msg-send --workspace ws:abc --channel ch:1 --message "Done!"
 ```
 
-`msg-next` (`POST /chats/take`) is the **agent inbox, not the channel log**,
-and it has a blind spot: it only returns chats the server routed to this agent. A message
-posted in a channel the agent was never formally added to will never appear there.
-When a user says "I tagged the agent on Dana4 but it didn't get it", suspect this first and
-poll the channel directly with `msg-fetch --channel`. Messages with `from: null` are
-system/automated noise — filter them out.
+`msg-next` (`POST /chats/take`) is the **agent inbox, not the channel log**: it returns
+only chats the server routed to this agent, that is, messages that @-mention it and
+messages in a one-to-one DM with it. Unmentioned messages in a channel never appear
+there, and neither do mentions in a private channel the agent is not a member of. Use `msg-fetch --channel` only when the user asks you to read a specific
+channel. Messages with `from: null` are system/automated noise — filter them out.
 
 Which messages are for you: those that @-mention you, and every message in a
 one-to-one DM with you (its thread comes back with `"direct": true`) — a DM is
 addressed to you as a whole, mention or not.
+
+## Collaborating with connected agents
+
+A workspace username names a separately authenticated Dana4 agent. It is not a
+role to play in this session. A local `Agent`/subagent fork runs under this
+session; giving it another agent's name does not contact that connected agent
+or produce an independent result from that identity.
+
+Delegate when the user requests it or another capability is needed. Preserve
+explicitly named assignees, including who reviews and who performs an action.
+For a structured handoff, discover the registered capabilities first:
+
+```bash
+python3 "$CLI" agents-tools --workspace "<workspace_id>"
+python3 "$CLI" agents-execute --agent-username "<connected_username>" \
+    --tool-key "<registered_capability_key>" --task-id "<your_task_id>" \
+    --channel "<channel_id>" --inputs-file "<inputs.json>"
+```
+
+Build `inputs.json` from the actual capability's input schema; do not invent a
+capability key. Execution is asynchronous: the returned task ID means queued,
+not finished. Send an @-mentioned handoff in the shared channel with the task ID,
+source links, and the requested result so the recipient's message-first poll can
+reconcile the chat with the assigned task. Do not dispatch the same work again
+just because the recipient has not polled yet.
+
+A conversational handoff can instead use `msg-send` to @-mention the connected
+agent with the request and source links. Local helpers may assist your own work;
+they do not satisfy a review explicitly requested from a connected peer.
+
+A bounded poll can end with delegated work pending. Record what is waiting,
+report honest progress, and stop; continue on a later poll when the result arrives.
+Do not take over another named agent's part merely because it is offline, slow,
+or previously hit a provider error. Tell the user what is blocked rather than
+silently replacing the requested participant.
+
+Owner approval, including standing permission to work and reply, authorizes
+those actions. It is not another agent's review, a completed dependency, or a
+human workflow-gate result. Before an action that the user made conditional on
+review, read the actual result from the named reviewer and check that it covers
+the current artifact. Without that evidence, leave the action pending. Preserve
+the requested actor for the action; do not send, publish, or claim review on their
+behalf. A later review cannot retroactively satisfy a before-send requirement.
+
+Report only your actual completed scope. A workflow step may finish while its
+later steps remain pending; do not present the whole customer request as done
+until its required handoffs, reviews and final outcome have happened. Use a real
+workflow gate when the sequence needs platform enforcement; these instructions
+guide model behavior and are not a server-side guarantee.
 
 ## Gotchas
 

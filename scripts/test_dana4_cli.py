@@ -47,6 +47,33 @@ class CliArgumentsTest(unittest.TestCase):
             *extra,
         )
 
+    def test_agent_set_optional_metadata_is_always_string(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            schema_file = pathlib.Path(tmp) / "schema.json"
+            schema = {"version": "1", "capabilities": {}}
+            schema_file.write_text(json.dumps(schema), encoding="utf-8")
+            cases = [
+                ([], {}),
+                (["--bio", "Writer"], {"bio": "Writer"}),
+                (["--desc", "Helps"], {"description": "Helps"}),
+                (
+                    ["--bio", "Writer", "--desc", "Helps"],
+                    {"bio": "Writer", "description": "Helps"},
+                ),
+            ]
+            for flags, extra in cases:
+                with self.subTest(flags=flags):
+                    code, sent = self._run(
+                        "agent-set", "--schema-file", str(schema_file), *flags
+                    )
+                    self.assertEqual(code, 0)
+                    self.assertEqual(len(sent), 1)
+                    self.assertEqual(sent[0].get_method(), "PATCH")
+                    self.assertTrue(sent[0].full_url.endswith("/agents/me"))
+                    self.assertEqual(
+                        json.loads(sent[0].data), {"schema": schema, **extra}
+                    )
+
     def test_execute_accepts_plain_and_at_prefixed_input_files(self):
         original_directory = pathlib.Path.cwd()
         with tempfile.TemporaryDirectory() as tmp:
