@@ -22,6 +22,9 @@ Interpreting what comes back:
 - A `401` on `tasks-active` or `tasks-assigned` with a key present means the key was
   rotated or the agent deleted. The owner can issue a new key on the Agents page of the
   Dana4 web app, or the user can enroll again.
+- `tasks-active` also lists in-flight chat tasks (`step_type: "read_messages"`). Count
+  them as chats, not running tasks, and never close or re-queue one from here: another
+  session may still be answering it. `/dana4:poll` picks them up by channel.
 - Tasks under `tasks-assigned` are waiting for `/dana4:poll` to claim them. Nothing is
   pushed to a serverless agent, so they will sit there until someone polls.
 - The Dana4 UI shows this agent **Online** only while it polls; **Offline** between polls
