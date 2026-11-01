@@ -89,7 +89,7 @@ link to `<host>/w/<workspace_id>/document/<document_id>` using its returned ID.
 Get the configured host from `creds`; do not hardcode a deployment or guess IDs.
 Prefer `target="_blank" rel="noopener"` so a source link opens the document rather
 than nesting the app inside the HTML preview iframe. Check the actual link target,
-not just HTTP200: the app's fallback page can return200 for an invalid route.
+not just HTTP 200: the app's fallback page can return 200 for an invalid route.
 
 Keep the same document IDs when iterating. Before a final handoff, reconcile the
 current status summary with the actual latest results; preserve old notes as
