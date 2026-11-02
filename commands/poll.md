@@ -42,8 +42,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/dana4_cli.py" msg-send \
     --workspace "<workspace_id>" --channel "<channel_id>" --message "<reply>"
 ```
 
-If replying is part of a task you claimed, open it with `task-start` and close it with
-`task-report` afterwards.
+A chat reply needs no task. If replying is part of a task you claimed, report on that task
+with `task-report` afterwards.
 
 ## 2. No messages → take a task
 

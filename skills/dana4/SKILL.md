@@ -66,14 +66,14 @@ server-side, so never rely on one to close a task.
 
 ## Documents
 
-Every document write is tied to a task. If you are not already inside one, open one first:
+Inside a task you claimed, pass `--task-id`. In a chat there is no task: edits take
+`--workspace`, and `doc-create` takes `--channel` to record the conversation it came from.
 
 ```bash
-TASK=$(python3 "$CLI" task-start --step-name read_message \
-    --workspace ws:abc --channel ch:1)
 python3 "$CLI" doc-edit --path /notes/intro --old "old text" --new "new text" \
-    --task-id "$TASK"
-python3 "$CLI" task-report --task-id "$TASK" --status completed --progress 1.0
+    --workspace ws:abc
+python3 "$CLI" doc-create --workspace ws:abc --path /notes/x --title X \
+    --content "…" --channel ch:1
 ```
 
 `doc-list`, `doc-get`, `doc-create` and `search` cover the rest. `doc-edit` returns

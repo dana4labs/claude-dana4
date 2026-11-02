@@ -103,15 +103,6 @@ def build_parser() -> argparse.ArgumentParser:
     add_auth(sp)
     sp.add_argument("--task-id", required=True)
     sp.add_argument("--capability", required=True)
-    sp = sub.add_parser(
-        "task-start", help="POST /tasks — open a task, returns task_id"
-    )
-    add_auth(sp)
-    sp.add_argument("--step-name", required=True, help="e.g. read_message")
-    sp.add_argument("--workspace", required=True)
-    # channel_id is a required String server-side (StartNewTaskPayload); fail here
-    # rather than eating a 422.
-    sp.add_argument("--channel", required=True)
     sp = sub.add_parser("task-report", help="PATCH /tasks/{task_id}")
     add_auth(sp)
     sp.add_argument("--task-id", required=True)
@@ -139,9 +130,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--title", required=True)
     sp.add_argument("--content", default="")
     sp.add_argument("--task-id", default=None)
+    sp.add_argument("--channel", default=None, help="chat channel it came from")
     sp.add_argument("--type", default="default")
     sp = sub.add_parser("doc-edit", help="POST /documents/edit")
     add_auth(sp)
+    sp.add_argument(
+        "--workspace", default=None, help="in a chat (no --task-id)"
+    )
     sp.add_argument("--path", required=True)
     sp.add_argument("--old", required=True)
     sp.add_argument("--new", required=True)
@@ -312,10 +307,6 @@ def main(argv=None):
             out = client.tasks_unassigned()
         elif args.cmd == "tasks-claim":
             out = client.tasks_claim(args.task_id, args.capability)
-        elif args.cmd == "task-start":
-            out = client.task_start(
-                args.step_name, args.workspace, args.channel
-            )
         elif args.cmd == "task-report":
             rj = None
             if args.result_json:
@@ -342,6 +333,7 @@ def main(argv=None):
                 args.title,
                 args.content,
                 task_id=args.task_id,
+                channel_id=args.channel,
                 document_type=args.type,
             )
         elif args.cmd == "doc-edit":
@@ -351,6 +343,7 @@ def main(argv=None):
                 args.new,
                 task_id=args.task_id,
                 replace_all=args.replace_all,
+                workspace_id=args.workspace,
             )
         elif args.cmd == "search":
             out = client.search(args.workspace, args.query, limit=args.limit)
